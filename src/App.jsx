@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { operarRsa } from './api.js';
 import imagemGta from './gta-vi.jpeg';
 import logoRsaVi from './rsa-vi-logo.jpeg';
+import somMissao from './missao-cumprida.mp3';
 
 const etapas = [
   { rota: 'chaves', nome: 'Gerar chaves', titulo: 'Gere seu par de chaves', descricao: 'Informe dois números primos diferentes e um expoente público.', acao: 'Gerar par de chaves' },
@@ -30,11 +31,20 @@ export function App() {
   const [ocupado, setOcupado] = useState(false);
   const [feedback, setFeedback] = useState('');
   const [rsaVi, setRsaVi] = useState(false);
+  const [missao, setMissao] = useState(0);
+  const audioMissao = useRef(null);
+  const [somBloqueado, setSomBloqueado] = useState(false);
   const nome = rsaVi ? 'RSA VI' : 'RSA Lab';
 
   useEffect(() => {
     document.title = nome + ' — Laboratório de criptografia';
   }, [nome]);
+
+  useEffect(() => {
+    if (!missao) return;
+    const tempo = window.setTimeout(() => setMissao(0), 2500);
+    return () => window.clearTimeout(tempo);
+  }, [missao]);
 
   const etapa = etapas[aba];
   const resultado = resultados[etapa.rota];
@@ -51,6 +61,17 @@ export function App() {
     setExpoente('17');
     setMensagem('OLA MUNDO');
     selecionar(0);
+  }
+
+  async function tocarMissao() {
+    const audio = audioMissao.current;
+    audio.currentTime = 0;
+    try {
+      await audio.play();
+      setSomBloqueado(false);
+    } catch {
+      setSomBloqueado(true);
+    }
   }
 
   async function enviar(evento) {
@@ -84,7 +105,11 @@ export function App() {
         setPrivada(resposta.chavePrivada);
       } else if (aba === 1) {
         setCifra(JSON.stringify(resposta.texto));
-        if (dados.mensagem === 'GTA VI') setRsaVi(true);
+        if (dados.mensagem === 'GTA VI') {
+          setRsaVi(true);
+          setMissao((anterior) => anterior + 1);
+          void tocarMissao();
+        }
       }
     } catch (falha) {
       setErro(falha.message);
@@ -104,6 +129,12 @@ export function App() {
   }
 
   return <div className="pagina">
+    <audio ref={audioMissao} src={somMissao} preload="auto" />
+    <div className="missao-status" role="status">
+      {missao > 0 && <div className="missao" key={missao}>
+        <span>Missão Cumprida</span>
+      </div>}
+    </div>
     <header className="topo">
       <div className="marca">
         {rsaVi
@@ -117,6 +148,7 @@ export function App() {
         <div className="hero-texto">
           <h1 id="titulo">Laboratório<br />de criptografia<span>.</span></h1>
           <p>Gere chaves, transforme uma mensagem em números e recupere o texto original com RSA.</p>
+          {somBloqueado && <p><button className="botao exemplo" type="button" onClick={tocarMissao}>Tocar som da missão</button></p>}
         </div>
         {rsaVi
           ? <img className="arte-vi" src={imagemGta} alt="Ilustração de dois personagens de GTA VI" width="1280" height="1280" />
