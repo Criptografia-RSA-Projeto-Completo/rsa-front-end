@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { operarRsa } from './api.js';
+import imagemGta from './gta-vi.jpeg';
+import logoRsaVi from './rsa-vi-logo.jpeg';
 
 const etapas = [
   { rota: 'chaves', nome: 'Gerar chaves', titulo: 'Gere seu par de chaves', descricao: 'Informe dois números primos diferentes e um expoente público.', acao: 'Gerar par de chaves' },
@@ -27,6 +29,12 @@ export function App() {
   const [erro, setErro] = useState('');
   const [ocupado, setOcupado] = useState(false);
   const [feedback, setFeedback] = useState('');
+  const [rsaVi, setRsaVi] = useState(false);
+  const nome = rsaVi ? 'RSA VI' : 'RSA Lab';
+
+  useEffect(() => {
+    document.title = nome + ' — Laboratório de criptografia';
+  }, [nome]);
 
   const etapa = etapas[aba];
   const resultado = resultados[etapa.rota];
@@ -76,6 +84,7 @@ export function App() {
         setPrivada(resposta.chavePrivada);
       } else if (aba === 1) {
         setCifra(JSON.stringify(resposta.texto));
+        if (dados.mensagem === 'GTA VI') setRsaVi(true);
       }
     } catch (falha) {
       setErro(falha.message);
@@ -96,16 +105,22 @@ export function App() {
 
   return <div className="pagina">
     <header className="topo">
-      <div className="marca"><span className="logo" aria-hidden="true">⬡</span> RSA<span className="marca-lab">LAB</span></div>
+      <div className="marca">
+        {rsaVi
+          ? <img className="marca-vi" src={logoRsaVi} alt="RSA VI" width="1600" height="682" />
+          : <><span className="logo" aria-hidden="true">⬡</span> RSA <span className="marca-lab">LAB</span></>}
+      </div>
       <button className="botao exemplo" type="button" onClick={carregarExemplo} disabled={ocupado}>Carregar exemplo <span aria-hidden="true">↗</span></button>
     </header>
     <main>
-      <section className="hero" aria-labelledby="titulo">
+      <section className={rsaVi ? 'hero hero-vi' : 'hero'} aria-labelledby="titulo">
         <div className="hero-texto">
           <h1 id="titulo">Laboratório<br />de criptografia<span>.</span></h1>
           <p>Gere chaves, transforme uma mensagem em números e recupere o texto original com RSA.</p>
         </div>
-        <div className="orbita" aria-hidden="true"><div className="anel"><div className="nucleo">⬡</div></div><span className="orbita-label">c = mᵉ mod n</span></div>
+        {rsaVi
+          ? <img className="arte-vi" src={imagemGta} alt="Ilustração de dois personagens de GTA VI" width="1280" height="1280" />
+          : <div className="orbita" aria-hidden="true"><div className="anel"><div className="nucleo">⬡</div></div><span className="orbita-label">c = mᵉ mod n</span></div>}
       </section>
       <nav className="etapas" aria-label="Operações RSA">
         {etapas.map((item, indice) => <button type="button" key={item.rota} aria-pressed={aba === indice} disabled={ocupado} onClick={() => selecionar(indice)}>
@@ -158,6 +173,6 @@ export function App() {
         </section>
       </div>
     </main>
-    <footer className="rodape"><span>RSA LAB</span><span>Ferramenta didática · Use dados de exemplo.</span></footer>
+    <footer className="rodape"><span>{nome.toUpperCase()}</span><span>Ferramenta didática · Use dados de exemplo.</span></footer>
   </div>;
 }

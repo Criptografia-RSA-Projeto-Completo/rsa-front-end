@@ -19,6 +19,7 @@ button:disabled { cursor: wait; opacity: .7; }
 .marca { display: flex; align-items: center; gap: 5px; font-size: 19px; font-weight: 800; letter-spacing: -.07em; }
 .logo { display: grid; place-items: center; width: 34px; height: 34px; margin-right: 5px; background: #382043; color: var(--pink); border-radius: 9px; font-size: 22px; }
 .marca-lab { color: #cbb2d3; font-weight: 500; }
+.marca-vi { display: block; width: clamp(96px, 25vw, 134px); height: auto; border-radius: 8px; }
 .botao { border: 1px solid transparent; border-radius: 8px; padding: 10px 14px; font-weight: 600; transition: background .18s, border-color .18s; }
 .exemplo { border-color: #604663; color: #ffe7f5; background: transparent; font-size: 13px; }
 .exemplo:hover { background: #382343; }
@@ -84,4 +85,20 @@ fieldset { display: grid; gap: 14px; margin: 0; padding: 0; border: 0; min-width
   .etapas { gap: 5px; margin-top: 15px; }
   .etapas button { justify-content: center; padding: 10px 3px; font-size: clamp(10px, 2.9vw, 13px); }
   .numero { display: none; }
+}
+
+.hero-vi { justify-content: space-between; gap: 24px; }
+.arte-vi {
+  display: block;
+  width: clamp(180px, 27vw, 290px);
+  height: auto;
+  flex-shrink: 0;
+  border-radius: 12px;
+  border: 1px solid #ffafd6;
+  box-shadow: 0 12px 45px #170f2470;
+}
+
+@media (max-width: 610px) {
+  .hero-vi { flex-direction: column; align-items: flex-start; }
+  .arte-vi { width: min(100%, 290px); align-self: center; }
 }
